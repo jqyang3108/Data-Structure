@@ -1,0 +1,34 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+#include "packing.h"
+
+int main(int argc, char ** argv) {
+  //load file
+  FILE *open = fopen(argv[1], "r");
+  if(open == NULL){
+    return EXIT_FAILURE;
+  }
+  treeNode *treeRoot = Load_From_File(argv[1]);
+
+  fclose(open);
+  //Find dimension and coodinate
+  Perform_Packing(treeRoot);
+  
+  //Output file
+  Save_To_File(argv[2],treeRoot);
+
+
+  //print output
+  printf("\nWidth: %le\nHeight: %le\n", treeRoot -> width, treeRoot -> height);
+ 
+  treeNode *largestNode = treeRoot;
+  getLargestNode(&largestNode, treeRoot);
+  printf("X-coordinate: %le\nY-coordinate: %le\n", largestNode -> xVal, largestNode -> yVal);
+
+
+  freeTree(treeRoot);
+
+  return EXIT_SUCCESS;
+}

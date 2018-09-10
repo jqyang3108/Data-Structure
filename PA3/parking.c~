@@ -1,0 +1,161 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "parking.h"
+
+void getSize(int * numOfLine, FILE *open){
+  do{
+    if(fgetc(open) == '\n'){
+      numOfLine++;
+    }
+  }while(feof(open) == 0);
+  rewind(open);
+  return;
+}
+
+treeNode *loadFromFile(int * numOfLine, FILE *open){
+
+  int i = 0;
+  treeNode **array = malloc(*numOfLine * sizeof(treeNode*));
+  
+  for(i = 0; i < *numOfLine; i++){
+    array[i] = malloc(sizeof(treeNode));
+    array[i] -> index = 0;
+    array[i] -> left = NULL;
+    array[i] -> right = NULL;
+    array[i] -> width = 0;
+    array[i] -> height = 0;
+    array[i] -> xVal = 0;
+    array[i] -> yVal = 0;
+
+    //get the first number (label)
+    (array[i]) -> label = fgetc(open);
+    
+    if(fgetc(open) != '\n'){
+      fseek(open, -2, SEEK_CUR);
+      fscanf(open, "%d(%le,%le)\n", &(array[i] -> index),  &(array[i] -> width),  &(array[i] -> height));
+    }
+    (array[i]) -> label = 0; 
+  }
+  return *array;
+}
+
+treeNode buildTree(int * cur, treeNode *array){
+  (*cur)--;
+  int cursor = *cur;
+  
+  if((array[cursor]) -> index > 0){
+    return array[cursor];
+  }
+  array[cursor] -> right = buildTree(cur, array);
+  array[cursor] -> left = buildTree(cur, array);
+  return array[cursor];
+}
+
+
+void getWidthAndHeight(treeNode *treeRoot){
+  if(treeRoot ->  label == '0'){
+    return;
+  }
+  getWidthAndHeight(treeRoot -> right);
+  getWidthAndHeight(treeRoot -> left);
+
+  if(treeRoot -> label == 'H'){
+
+    if(treeRoot -> left -> width > treeRoot -> right -> width){
+      treeRoot -> width = treeRoot -> left -> width;
+    }
+    else{
+      treeRoot -> width = treeRoot -> right -> width;
+    }
+    treeRoot -> height = treeRoot -> left -> height + treeRoot -> right -> height;
+  }
+
+  if(treeRoot -> label == 'V'){
+
+    if(treeRoot -> left -> height > treeRoot -> right -> height){
+      treeRoot -> height = treeRoot -> left -> height;
+    }
+    else{
+      treeRoot -> height = treeRoot -> right -> height;
+    }
+    treeRoot -> width = treeRoot -> left -> width + treeRoot -> right -> width;
+  }
+  return;
+}
+/**
+void getCoordinate(treeNode *treeRoot){
+
+
+
+}
+**/
+
+void getLargestNode(treeNode **largest, treeNode *tree){
+  if(tree -> index > 0){
+    if(tree -> index > *(largest) -> index){
+      *(largest) = tree;
+    }
+    return;
+  }
+  getLargestNode(*largest, tree -> right);
+  getLargestNode(*largest, tree -> left);
+  return;
+}
+
+void freeTree(treeNode *tree){
+  if(tree == NULL){
+    return;
+  }
+  freeTree(tree -> left);
+  freeTree(tree -> right);
+  free(tree);
+  return;
+}
+
+
+void getCoordinate(treeNode *treeRoot, double xCursor, double yCursor){
+  if(treeRoot -> label == 0){
+    return;
+  }
+  
+  getCoordinate(treeRoot -> left, xCursor, yCursor);
+
+  if(treeRoot -> label == 'V'){
+    if(treeRoot -> left -> label ==0){
+      treeRoot -> left -> xVal = xCursor;
+      treeRoot -> left -> yVal = yCursor - treeRoot -> height;
+    }
+    xCursor += treeRoot -> left -> width;
+    
+    if(treeRoot -> right -> label == 0){
+      treeRoot -> right -> xVal = xCursor;
+      treeRoot -> right -> yVal = yCursor - treeRoot -> height;
+    }
+  }
+
+  if(treeRoot -> label == 'H'){
+    if(treeRoot -> left -> label == 0){
+      treeRoot -> left -> xVal = xCursor;
+      treeRoot -> left -> yVal = yCursor - treeRoot -> left -> height;
+    }
+    yCursor -= treeRoot -> left -> height;
+    
+    if(treeRoot -> right -> label == 0){
+      treeRoot -> right -> xVal = xCursor;
+      treeRoot -> right -> yVal = yCursor - treeRoot -> right -> height;
+    }
+  }
+  getCoordinate(treeRoot -> right, xCursor, yCursor);
+  return;
+}
+
+void printPostOrder(treeNode * treeRoot, FILE * open){
+  if(treeRoot -> index > 0){
+    fprintf(open, "%d %le %le %le %le\n", treeRoot -> index, treeRoot -> width, treeRoot -> height, treeRoot -> xVal, treeRoot-> yVal);
+    return;
+  }
+  printPostOrder(treeRoot -> left,  open);
+  printPostOrder(treeRoot -> right, open);
+  
+
+}

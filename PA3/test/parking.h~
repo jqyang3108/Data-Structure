@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+typedef struct treeNode{
+  struct treeNode *left;
+  struct treeNode *right;
+  char label;
+  int index;
+  int size;
+  double height;
+  double width;
+  double xVal;
+  double yVal;
+}treeNode;
+
+typedef TreeNode StackElement;
+
+typedef struct _Stack{
+	StackElement **content;
+	int top;
+	int MaxSize;
+}Stack;
+
+
+treeNode *Load_From_File(int * numOfLine, FILE *open);
+TreeNode *Perform_Packing(TreeNode *treeRoot);
+void Save_To_File(FILE *open, TreeNode *tree);
+void freeTree(treeNode *tree);
+
+
+

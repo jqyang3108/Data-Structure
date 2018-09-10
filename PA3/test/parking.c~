@@ -1,0 +1,268 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "parking.h"
+
+void getSize(FILE *open);
+void getWidthAndHeight(treeNode *treeRoot);
+void getCoordinate(treeNode *treeRoot, double xCursor, double yCursor);
+void printPostOrder(treeNode * treeRoot, FILE * open);
+void getLargestNode(treeNode **largest, treeNode *tree);
+Stack* stackInitial(int size);
+void stackPush(Stack *stackTree, StackElement *ele);
+StackElement *stackPop(Stack *stackTree);
+void freeStack(Stack *stackTree);
+
+
+int getSize(FILE *open){
+  int numOfLine = 0;
+  do{
+    if(fgetc(open) == '\n'){
+      numOfLine++;
+    }
+  }while(feof(open) == 0);
+  rewind(open);
+  return numOfLine;
+}
+/*********************
+treeNode *loadFromFile(int * numOfLine, FILE *open){
+
+  int i = 0;
+  treeNode **array = malloc(*numOfLine * sizeof(treeNode*));
+  
+  for(i = 0; i < *numOfLine; i++){
+    array[i] = malloc(sizeof(treeNode));
+    array[i] -> index = 0;
+    array[i] -> left = NULL;
+    array[i] -> right = NULL;
+    array[i] -> width = 0;
+    array[i] -> height = 0;
+    array[i] -> xVal = 0;
+    array[i] -> yVal = 0;
+
+    //get the first number (label)
+    (array[i]) -> label = fgetc(open);
+    
+    if(fgetc(open) != '\n'){
+      fseek(open, -2, SEEK_CUR);
+      fscanf(open, "%d(%le,%le)\n", &(array[i] -> index),  &(array[i] -> width),  &(array[i] -> height));
+    }
+    (array[i]) -> label = 0; 
+  }
+  return *array;
+}
+
+
+
+
+
+treeNode buildTree(int * cur, treeNode *array){
+  (*cur)--;
+  int cursor = *cur;
+  
+  if((array[cursor]) -> index > 0){
+    return array[cursor];
+  }
+  array[cursor] -> right = buildTree(cur, array);
+  array[cursor] -> left = buildTree(cur, array);
+  return array[cursor];
+}
+*************/
+
+
+TreeNode *Load_From_File(FILE *open){
+
+	if(open == NULL){
+		return NULL;
+	}
+	int size = getSize(Filename);
+	if(size == 0){
+		return NULL;
+	}
+
+	int i;
+	int sizeOfRec = 0;
+	Stack *stackTree = stackInitial(size, open);
+	treeNode *treeRoot = NULL;
+
+	for(i = 0; i < size; i++){
+		treeRoot = malloc(sizeof(treeNode));
+		treeRoot -> index = 0;
+		treeRoot -> label = '0';
+		treeRoot -> left = NULL;
+		treeRoot -> right = NULL;
+		treeRoot -> height = 0;
+		treeRoot -> width = 0;
+		treeRoot -> xVal = 0;
+		treeRoot -> yVal = 0;
+		treeRoot -> size = 0;
+		fscanf(fp,"%c", &(treeRoot -> character));
+		if((treeRoot -> label != 'H') && (treeRoot -> label != 'V')){
+			fseek(fp, -1, SEEK_CUR);
+			fscanf(fp, "%d(%le,%le)",&(treeRoot -> index), &(treeRoot -> width), &(treeRoot -> height));
+			sizeOfRec++;
+		}
+		else{
+			treeRoot -> right = stackPop(stackTree);
+			treeRoot -> left = stackPop(stackTree);
+		}
+		stackPush(stackTree, treeRoot);
+		fscanf(fp,"\n");
+	}
+	treeRoot = stackPop(stackTree);
+	treeRoot -> size = sizeOfRec;
+	freeStack(stackTree);
+	
+	return treeRoot;
+}
+
+
+void getWidthAndHeight(treeNode *treeRoot){
+  if(treeRoot ->  label == '0'){
+    return;
+  }
+  getWidthAndHeight(treeRoot -> right);
+  getWidthAndHeight(treeRoot -> left);
+
+  if(treeRoot -> label == 'H'){
+
+    if(treeRoot -> left -> width > treeRoot -> right -> width){
+      treeRoot -> width = treeRoot -> left -> width;
+    }
+    else{
+      treeRoot -> width = treeRoot -> right -> width;
+    }
+    treeRoot -> height = treeRoot -> left -> height + treeRoot -> right -> height;
+  }
+
+  if(treeRoot -> label == 'V'){
+
+    if(treeRoot -> left -> height > treeRoot -> right -> height){
+      treeRoot -> height = treeRoot -> left -> height;
+    }
+    else{
+      treeRoot -> height = treeRoot -> right -> height;
+    }
+    treeRoot -> width = treeRoot -> left -> width + treeRoot -> right -> width;
+  }
+  return;
+}
+
+void getLargestNode(treeNode **largest, treeNode *tree){
+  if(tree -> index > 0){
+    if(tree -> index > *(largest) -> index){
+      *(largest) = tree;
+    }
+    return;
+  }
+  getLargestNode(*largest, tree -> right);
+  getLargestNode(*largest, tree -> left);
+  return;
+}
+
+void freeTree(treeNode *tree){
+  if(tree == NULL){
+    return;
+  }
+  freeTree(tree -> left);
+  freeTree(tree -> right);
+  free(tree);
+  return;
+}
+
+
+void getCoordinate(treeNode *treeRoot, double xCursor, double yCursor){
+  if(treeRoot -> label == 0){
+    return;
+  }
+  
+  getCoordinate(treeRoot -> left, xCursor, yCursor);
+
+  if(treeRoot -> label == 'V'){
+    if(treeRoot -> left -> label ==0){
+      treeRoot -> left -> xVal = xCursor;
+      treeRoot -> left -> yVal = yCursor - treeRoot -> height;
+    }
+    xCursor += treeRoot -> left -> width;
+    
+    if(treeRoot -> right -> label == 0){
+      treeRoot -> right -> xVal = xCursor;
+      treeRoot -> right -> yVal = yCursor - treeRoot -> height;
+    }
+  }
+
+  if(treeRoot -> label == 'H'){
+    if(treeRoot -> left -> label == 0){
+      treeRoot -> left -> xVal = xCursor;
+      treeRoot -> left -> yVal = yCursor - treeRoot -> left -> height;
+    }
+    yCursor -= treeRoot -> left -> height;
+    
+    if(treeRoot -> right -> label == 0){
+      treeRoot -> right -> xVal = xCursor;
+      treeRoot -> right -> yVal = yCursor - treeRoot -> right -> height;
+    }
+  }
+  getCoordinate(treeRoot -> right, xCursor, yCursor);
+  return;
+}
+
+void printPostOrder(treeNode * treeRoot, FILE * open){
+  if(treeRoot -> index > 0){
+    fprintf(open, "%d %le %le %le %le\n", treeRoot -> index, treeRoot -> width, treeRoot -> height, treeRoot -> xVal, treeRoot-> yVal);
+    return;
+  }
+  printPostOrder(treeRoot -> left,  open);
+  printPostOrder(treeRoot -> right, open);
+  
+
+}
+
+TreeNode *Perform_Packing(TreeNode *treeRoot){
+	getWidthAndHeight(treeRoot);
+	getCoordinate(treeRoot);
+    
+    
+	return node;
+}
+
+void Save_To_File(FILE *open, TreeNode *tree){
+	if(open == NULL){
+		return;
+	}
+	printPostOrder(fp, tree);
+
+	return;
+}
+Stack* stackInitial(int size){
+	Stack *stackTree = malloc(sizeof(Stack));
+	if(stackTree == NULL){
+		return NULL;
+	}
+	stackTree -> content = malloc(sizeof(StackElement) * size);
+	if(stackTree -> content == NULL){
+		return NULL;
+	}
+	stackTree -> top = -1;
+	stackTree -> MaxSize = size;
+	return stackTree;
+}
+
+void stackPush(Stack *stackTree, StackElement *ele){
+	(stackTree -> top)++;
+	stackTree -> content[stackTree -> top] = ele;
+	return;
+}
+
+StackElement *stackPop(Stack *stackTree){
+	return stackTree -> content[stackTree -> top--];
+}
+
+void freeStack(Stack *stackTree){
+	if((stackTree -> content) != NULL){	
+		free(stackTree -> content);
+	}
+	if((stackTree) != NULL){
+		free(stackTree);
+	}
+	return;
+}

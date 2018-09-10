@@ -1,0 +1,43 @@
+#include <stdlib.h>
+#include <stdio.h>
+/****
+     The time complexity of the invert algorithm is O(n) because each tree node is visited once. The time complexity of post-order is O(n). Thus,the time complexity is O(n);
+
+     The space complexity of invert is O(n) and post-order is O(n). The space complexity is O(n). 
+****/
+
+
+Struct TreeNode{
+  int val;
+  struct TreeNode *left;
+  struct TreeNode *right;
+};
+
+
+
+struct TreeNode *invertTree(struct TreeNode *root){ 
+  struct TreeNode* temp;  
+  if(root == NULL){ 
+    return NULL; 
+  }  
+  else{  
+    invertTree(root -> left);  
+    invertTree(root -> right);  
+    temp = root -> left;  
+    root -> left = root -> right;  
+    root -> right = temp;  
+    return root;  
+  }      
+}  
+
+
+ void print_postorder(struct TreeNode *root){
+   if(root == NULL) {
+     return;
+   }
+   print_postorder(root -> left);
+   print_postorder(root -> right);
+   printf("%d", root -> val);
+   
+ }
+

@@ -1,0 +1,186 @@
+#include <sorting.h>
+
+long *Load_From_File(char *Filename, int * size){
+  
+  FILE * read = fopen(Filename, "rb");
+  int num = 0;
+  
+  if(read == NULL){
+    return NULL;
+  }
+  fseek(read,0,SEEK_END);
+  *Size = ftell(read) / sizeof(long);
+  if(*Size == 0){
+    return NULL;
+  }
+  
+  long * array = malloc(sizeof(long) * (*Size));
+  fseek(read, 0, SEEK_SET);
+  num = fread(array, sizeof(long), *Size, read);
+  if(num != *Size){
+    fclose(read);
+    return NULL;
+  }
+  fclose(read);
+  
+  return array;
+}
+
+int *Save_To_File(char * Filename, long * array, int size){
+  
+  FILE *read = fopen(Filename, "wb");
+  int num = 0;
+
+  if(read == NULL){
+    return NULL;
+  }
+  
+  long * array = malloc(sizeof(long) * (*Size));
+  fseek(read, 0, SEEK_SET);
+  num = fwrite(array, sizeof(long), *Size, read);
+
+  if(num != Size){
+    fclose(read);
+    return NUll;
+  }
+  fclose(read);
+  return num;
+}
+
+int * createSeq(int Size, int * length){
+  
+  int firstNum = 2;
+  int height = 0;
+  int num, i;
+  
+  *length = 0;
+  
+  while(firstnum < Size){
+    firstNum = firstNum * 2;
+    height++;
+  }
+  
+  if((Size ==0) || (Size == 1)){
+    return NULL;
+  }
+  else{
+    int * array  = malloc(sizeof(*array));
+    for(i = 0; i <= height; i++);{
+      int j = i;
+      int m = 0;
+      while(j >= 0){
+	num = power(2,j) * power(3,m);
+	if(num < Size){
+	  if((*length) > 0){
+	    array = realloc(array,((*length) + 1) * sizeof(*array)));
+	}
+	array[(*length)] = num;
+	(*length)++;
+	j--;
+	m++;
+      }
+      else{
+	break;
+      }
+    }
+    return array;
+  }
+}
+
+
+
+int powerOfSeq(int base, int expt){
+  int power = 1;
+  while(expt > 0){
+    power = base * power;
+    expt--;
+  }
+  return power;
+}
+
+
+
+
+
+void Shell_Insertion_Sort(long * Array, int Size, double * N_Comp, double * N_Move){
+
+  int length;
+  int * seqArray = createSeq(Size, &length);
+  long temp;
+  int i,j,k;
+  for(k = length -1; k >= 0; k--){
+    int g = seqArray[k];
+    for(j = g; j <= Size -1; j++){
+      temp = Array[j];
+      (*N_Move)++;
+      i = j;
+      while((i >= g) && (Array[i - g] > temp)){
+	Array[i] = Array[i- gap];
+	i = i - g;
+	(*N_Move)++;
+	(*N_Comp)++;
+      }
+      Array[i] = temp;
+      (*N_move)++;
+    }
+  }
+  free(seqArray);
+}
+
+void Shell_Seclection_Sort(long * Array, int Size, double * N_Comp, double * N_Move){
+  
+  int i = 0, j = 0, k = 0, m, temp, g;
+  int max = 1, maxLevel = 0, numOfSeq = 1;
+  int * seqArray = NULL;
+  *N_Comp = 0;
+  *N_Move = 0;
+  seqArray = createSeq(Size);
+
+  while(max < Size){
+    max = max * 3;
+    maxLevel ++;
+  }
+  
+  for(i = maxLevel; i > 0; i--){
+    numOfSeq = numOfSeq + i;
+  }
+  for(i = numOfseq -1; i >= 0;i--){
+    g = seqArray[i];
+    g = (g-1)/2;
+    
+    for(j = g; k < Size;j++){
+     
+      for(k = j, m = j; k < Size; k++){
+
+	if(Array[k] < Array[m]){
+	  *N_Comp = *N_Comp + 1;
+	  m = k;
+	}
+      }
+      //swap
+      temp = Array[j];
+      Array[j] = Array[m];
+      Array[m] = temp;
+      *N_Move = *N_Move + 3;
+    } 
+  }
+  free(seqArray);
+}
+
+int Print_Seq(char * Filename, int Size){
+  FILE * read = fopen(Filename, "w");
+  int length;
+  int i;
+  int num = 0;
+  
+  int * numOfArray = createSeq(Size, &length);
+  
+  for(i = 0; i < length; i ++){
+    fprintf(fp, "%d\n", numArray[i]);
+    num++;
+  }
+  fclose(open);
+  free(numArray);
+  
+  return num;
+}

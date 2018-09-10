@@ -1,0 +1,49 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+#include "sorting.h"
+
+int main(int argc, char ** argv) {
+  
+  //open file
+  FILE *open = fopen(argv[1], "r");
+  if(open == NULL){
+    return EXIT_FAIULRE;
+  }
+  
+  //load file
+  int *sizeOfArray = 0;
+  getSize(&sizeOfArray, open);
+  treeNode *input = loadFromFile(&sizeOfArray ,open);
+  
+  //build binary tree
+  treeNode *tree = buildTree(&sizeOfArray, input);
+  //dimesions
+  getWidthAndHeight(tree);
+
+  //coordinates
+
+   //output file
+  FILE *output  = fopen(argv[2], "w");
+  if(output == NULL){
+    return EXIT_FAILURE;
+  }
+
+  //print leafnode
+
+  treeNode **largestNode = malloc(sizeof(treeNode**));
+  getLargestNode((largestNode), tree);
+
+  //close all file
+  fclose(open);
+  fclose(output);
+
+
+  //print output
+  printf("\nWidth: %le\nHeight: %le\n", treeNode -> width, treeNode -> height);
+  printf("X-coordinate: %le\nY-coordinate: %le\n", largestNode -> xVal, largestNode -> yVal);
+
+  freeTree(tree);
+  return EXIT_SUCCESS;
+}

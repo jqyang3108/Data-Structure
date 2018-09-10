@@ -1,0 +1,24 @@
+
+CFLAGS = -Werror -Wshadow -Wall -O3 -g
+GCC = gcc $(CFLAGS)
+
+all: packing.o main.o
+	$(GCC) packing.c main.c -o proj3
+
+%.o: %.c packing.h
+	$(GCC) -c $<
+
+test: all
+	./exam r6_po.txt output
+
+mem0: all
+	valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes
+
+mem1: all
+	valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes
+
+
+clean:
+	/bin/rm -f *.o
+	/bin/rm -f proj3
+	/bin/rm -f output

@@ -1,0 +1,39 @@
+IDLE: if(dr==0) goto IDLE
+	else if(dr==1) goto STORE
+STORE: if(dr==0) goto EIDLE
+	else if(dr==1) 
+	err = 0	
+	goto ZERO
+
+ZERO: reg[0] = 0
+	modwait = 1
+	goto SORT1
+SORT1: reg[1] = reg[2]
+SORT2: reg[2] = reg[3]
+SORT3: reg[3] = reg[4]
+SORT4: reg[4] = reg[5]
+MUL1 : reg[7] = reg[1]*reg[6]
+ADD1 : reg[0] = reg[0]+reg[7]
+	if (overflow == 1)
+	goto EIDLE
+MUL2 : reg[7] =reg[2]*reg[8]
+SUB1 : reg[0] = reg[0]-reg[7]
+	if (overflow == 1)
+	go EIDLE
+MUL3 : reg[7] = reg[3]*reg[9]
+ADD2 : reg[0] = reg[0]+reg[7]
+	if (overflow == 1)
+	goto EIDLE
+MUL4 : reg[7] = reg[4]*reg[10]
+	->SUB2
+SUB2 : reg[0] = reg[0]-reg[7]
+	if (overflow == 1)
+	goto EIDLE
+	else
+	goto IDLE
+EIDLE : err = 1
+	if(dr==1)
+	goto STORE
+	else
+	goto EIDLE
+

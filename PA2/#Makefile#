@@ -1,0 +1,27 @@
+# ECE368 PA1 Makefile
+
+CFLAGS = -Werror -Wall -Wshadow -O3 -g
+GCC = gcc $(CFLAGS)
+
+all: sorting.o main.o
+	$(GCC) sorting.c main.c -o proj2
+
+%.o: %.c sorting.h
+	$(GCC) -c $<
+
+test: all
+	./proj1 s empty test_seq test_output
+
+	 ./proj1 i given_files/1000.b test_seq test_output
+	time ./proj1 i given_files/10000.b test_seq test_output
+	time ./proj1 i given_files/100000.b test_seq test_output
+	time ./proj1 i given_files/1000000.b test_seq test_output
+
+
+memory: all
+	valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes proj1 s given_files/10000.b test_seq test_output
+
+clean:
+	/bin/rm -f *.o
+	/bin/rm -f proj1
+	/bin/rm -f test_output test_seq

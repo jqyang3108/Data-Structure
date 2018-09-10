@@ -1,0 +1,22 @@
+typedef struct treeNode{
+  struct treeNode *left;
+  struct treeNode *right;
+  char label;
+  int index;
+  int size;
+  double height;
+  double width;
+  double xVal;
+  double yVal;
+}treeNode;
+
+typedef struct List {
+  treeNode *node;
+  struct List *next;
+}List;
+
+treeNode * Load_From_File(char *Filename);
+void Perform_Packing(treeNode *treeRoot);
+void getLargestNode(treeNode **largest, treeNode *tree);
+void Save_To_File(char *Filename, treeNode *tree);
+void freeTree(treeNode *tree);
